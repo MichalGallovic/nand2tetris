@@ -12,3 +12,55 @@
 // the screen should remain fully clear as long as no key is pressed.
 
 // Put your code here.
+
+(START)
+  @color
+  M=0
+  @i
+  M=0
+  @8192
+  D=A
+  @width
+  M=D
+
+  @KBD
+  D=M
+  @WHITE
+  D;JEQ
+  @color
+  M=-1
+
+(WHITE)
+
+// displays black/white screen
+(LOOP)
+  // loop condition
+  @width
+  D=M
+  @i
+  D=D-M
+  @START
+  D;JEQ
+  
+  @SCREEN
+  D=A
+  @i
+  A=D+M
+  D=A
+  @R0
+  M=D
+  @color
+  D=M
+  @R0
+  A=M
+  M=D
+  
+  // i++ and iterate
+  @i
+  M=M+1
+  @LOOP
+  0;JMP
+
+(END)
+  @END
+  0;JMP
