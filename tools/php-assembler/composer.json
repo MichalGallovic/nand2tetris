@@ -1,0 +1,19 @@
+{
+    "name": "michalgallovic/nand2tetris-php-assembler",
+    "description": "Hack assembler for nand2teris",
+    "require": {
+        "phpunit/phpunit": "^9.4"
+    },
+    "authors": [
+        {
+            "name": "MichalGallovic",
+            "email": "gallovicm@gmail.com"
+        }
+    ],
+    "autoload": {
+      "psr-4": {
+        "Nand2Tetris\\": "src/",
+        "Tests\\": "tests/"
+      }
+    }
+}
