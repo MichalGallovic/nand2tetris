@@ -39,5 +39,48 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+
+    Not(in=instruction[15], out=ni);
+    Mux16(a=outtM,b=instruction,sel=ni,out=i);
+
+    Or(a=ni,b=instruction[5],out=intoA);
+    ARegister(in=i, load=intoA, out=A, out[0..14]=addressM);
+
+    And(a=instruction[15], b=instruction[4], out=intoD);
+    DRegister(in=outtM, load=intoD, out=outD);
+
+    And(a=instruction[15], b=instruction[12], out=AorM);
+    Mux16(a=A,b=inM,sel=AorM, out=AM);
+
+    ALU(x=outD, y=AM, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], zr=zr, ng=ng, out=outtM, out=outM);
+    And(a=instruction[15], b=instruction[3], out=writeM);
+
+    // zr, // 1 if (out == 0), 0 otherwise
+    // ng; // 1 if (out < 0),  0 otherwise
+    // The trick is here that in order to achieve
+    // 0 0 1
+    // 0 1 0
+    // 0 1 1
+    // 1 0 0
+    // 1 0 1
+    // 1 1 0
+    // 1 1 1
+    // All we need is jgt, jeq, jlt and or them together
+
+    And(a=instruction[15], b=instruction[0], out=jgt);
+    And(a=instruction[15], b=instruction[1], out=jeq);
+    And(a=instruction[15], b=instruction[2], out=jlt);
+
+    Not(in=ng, out=notNg); // >= 0
+    Not(in=zr, out=notZr); // != 0
+    And(a=notNg, b=notZr, out=posNotZr);
+
+    And(a=jgt, b=posNotZr, out=cond1);
+    And(a=jeq, b=zr, out=cond2);
+    And(a=jlt, b=ng, out=cond3);
+
+    Or(a=cond1, b=cond2, out=cond1And2);
+    Or(a=cond1And2, b=cond3, out=cond1And2And3);
+
+    PC(in=A, load=cond1And2And3, inc=true, reset=reset, out[0..14]=pc);
 }
