@@ -44,11 +44,11 @@ class ParserTest extends TestCase
     /**
     * @test
     */
-    public function has_more_commands_at_end()
+    public function has_no_more_commands_at_end()
     {
         $parser = new Parser(__DIR__ . '/fixtures/add/Add.asm');
 
-        foreach (range(0, 13) as $i) {
+        foreach (range(0, 6) as $i) {
             $parser->advance();
         }
 
@@ -61,8 +61,8 @@ class ParserTest extends TestCase
     public function can_advance()
     {
         $parser = new Parser(__DIR__ . '/fixtures/add/Add.asm');
-        $this->assertEquals("// This file is part of www.nand2tetris.org\r\n", $parser->advance());
-        $this->assertEquals("// and the book \"The Elements of Computing Systems\"\r\n", $parser->advance());
+        $this->assertEquals("@2", $parser->advance());
+        $this->assertEquals("D=A", $parser->advance());
     }
 
     /**
@@ -72,7 +72,7 @@ class ParserTest extends TestCase
     {
         $parser = new Parser(__DIR__ . '/fixtures/add/Add.asm');
 
-        foreach (range(0, 13) as $i) {
+        foreach (range(0, 6) as $i) {
             $parser->advance();
         }
 
@@ -84,5 +84,29 @@ class ParserTest extends TestCase
         }
 
         $this->assertFalse(true, 'Should have thrown runtime exception');
+    }
+
+    /**
+    * @test
+    */
+    public function can_detect_a_command()
+    {
+
+    }
+
+    /**
+    * @test
+    */
+    public function can_detect_c_command()
+    {
+
+    }
+
+    /**
+    * @test
+    */
+    public function can_detect_l_command()
+    {
+
     }
 }

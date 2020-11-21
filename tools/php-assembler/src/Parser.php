@@ -2,8 +2,6 @@
 
 namespace Nand2Tetris;
 
-use function Couchbase\defaultDecoder;
-
 class Parser
 {
     private $file;
@@ -26,7 +24,13 @@ class Parser
 
     public function advance()
     {
-        $this->command = $this->file->fgets();
+        $command = $this->file->fgets();
+
+        while(preg_match("/^(\/\/|\s+)/", $command)) {
+            $command = $this->file->fgets();
+        }
+
+        $this->command = str_replace("\r\n", '', $command);
 
         return $this->command;
     }
