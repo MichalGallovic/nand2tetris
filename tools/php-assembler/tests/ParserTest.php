@@ -91,7 +91,11 @@ class ParserTest extends TestCase
     */
     public function can_detect_a_command()
     {
+        $parser = new Parser(__DIR__ . '/fixtures/add/Add.asm');
 
+        $parser->advance();
+
+        $this->assertEquals(Parser::A_COMMAND, $parser->commandType());
     }
 
     /**
@@ -99,14 +103,135 @@ class ParserTest extends TestCase
     */
     public function can_detect_c_command()
     {
+        $parser = new Parser(__DIR__ . '/fixtures/add/Add.asm');
 
+        $parser->advance();
+        $parser->advance();
+
+        $this->assertEquals(Parser::C_COMMAND, $parser->commandType());
+    }
+
+//    /**
+//    * @test
+//    */
+//    public function can_detect_l_command()
+//    {
+//
+//    }
+
+
+    /**
+     * @test
+     */
+    public function can_get_dest_mnemonic()
+    {
+        $parser = new Parser(__DIR__ . '/fixtures/add/Add.asm');
+
+        $parser->setCommand('D=D+A');
+        $this->assertEquals('D', $parser->dest());
+        $parser->setCommand('M=');
+        $this->assertEquals('M', $parser->dest());
+        $parser->setCommand('A=');
+        $this->assertEquals('A', $parser->dest());
+        $parser->setCommand('MD=');
+        $this->assertEquals('MD', $parser->dest());
+        $parser->setCommand('AM=');
+        $this->assertEquals('AM', $parser->dest());
+        $parser->setCommand('AD=');
+        $this->assertEquals('AD', $parser->dest());
+        $parser->setCommand('AMD=');
+        $this->assertEquals('AMD', $parser->dest());
     }
 
     /**
     * @test
     */
-    public function can_detect_l_command()
+    public function can_get_comp_mnemonic()
     {
+        $parser = new Parser(__DIR__ . '/fixtures/add/Add.asm');
 
+        $parser->setCommand('D=');
+        $this->assertEquals(null, $parser->comp());
+        $parser->setCommand('D=0');
+        $this->assertEquals('0', $parser->comp());
+        $parser->setCommand('D=1');
+        $this->assertEquals('1', $parser->comp());
+        $parser->setCommand('D=-1');
+        $this->assertEquals('-1', $parser->comp());
+        $parser->setCommand('D=D');
+        $this->assertEquals('D', $parser->comp());
+        $parser->setCommand('D=A');
+        $this->assertEquals('A', $parser->comp());
+        $parser->setCommand('D=!D');
+        $this->assertEquals('!D', $parser->comp());
+        $parser->setCommand('D=!A');
+        $this->assertEquals('!A', $parser->comp());
+        $parser->setCommand('D=-D');
+        $this->assertEquals('-D', $parser->comp());
+        $parser->setCommand('D=-A');
+        $this->assertEquals('-A', $parser->comp());
+        $parser->setCommand('D=D+1');
+        $this->assertEquals('D+1', $parser->comp());
+        $parser->setCommand('D=A+1');
+        $this->assertEquals('A+1', $parser->comp());
+        $parser->setCommand('D=D-1');
+        $this->assertEquals('D-1', $parser->comp());
+        $parser->setCommand('D=A-1');
+        $this->assertEquals('A-1', $parser->comp());
+        $parser->setCommand('D=D+A');
+        $this->assertEquals('D+A', $parser->comp());
+        $parser->setCommand('D=D-A');
+        $this->assertEquals('D-A', $parser->comp());
+        $parser->setCommand('D=A-D');
+        $this->assertEquals('A-D', $parser->comp());
+        $parser->setCommand('D=D&A');
+        $this->assertEquals('D&A', $parser->comp());
+        $parser->setCommand('D=D|A');
+        $this->assertEquals('D|A', $parser->comp());
+        $parser->setCommand('D=M');
+        $this->assertEquals('M', $parser->comp());
+        $parser->setCommand('D=!M');
+        $this->assertEquals('!M', $parser->comp());
+        $parser->setCommand('D=-M');
+        $this->assertEquals('-M', $parser->comp());
+        $parser->setCommand('D=M+1');
+        $this->assertEquals('M+1', $parser->comp());
+        $parser->setCommand('D=M-1');
+        $this->assertEquals('M-1', $parser->comp());
+        $parser->setCommand('D=D+M');
+        $this->assertEquals('D+M', $parser->comp());
+        $parser->setCommand('D=D-M');
+        $this->assertEquals('D-M', $parser->comp());
+        $parser->setCommand('D=M-D');
+        $this->assertEquals('M-D', $parser->comp());
+        $parser->setCommand('D=D&M');
+        $this->assertEquals('D&M', $parser->comp());
+        $parser->setCommand('D=D|M');
+        $this->assertEquals('D|M', $parser->comp());
+    }
+
+    /**
+    * @test
+    */
+    public function can_get_jump_mnemonic()
+    {
+        $parser = new Parser(__DIR__ . '/fixtures/add/Add.asm');
+
+        $parser->setCommand('D=0');
+        $this->assertEquals(null, $parser->jump());
+        $parser->setCommand('D=0;JGT');
+        $this->assertEquals('JGT', $parser->jump());
+        $parser->setCommand('D=0;JEQ');
+        $this->assertEquals('JEQ', $parser->jump());
+        $parser->setCommand('D=0;JGE');
+        $this->assertEquals('JGE', $parser->jump());
+        $parser->setCommand('D=0;JLT');
+        $this->assertEquals('JLT', $parser->jump());
+        $parser->setCommand('D=0;JNE');
+        $this->assertEquals('JNE', $parser->jump());
+        $parser->setCommand('D=0;JLE');
+        $this->assertEquals('JLE', $parser->jump());
+        $parser->setCommand('D=0;JMP');
+        $this->assertEquals('JMP', $parser->jump());
     }
 }
