@@ -52,11 +52,16 @@ class Parser
 
     public function commandType()
     {
-        if (preg_match('/^@/', $this->command)) {
+        if ($this->matchesSymbol($this->command)) {
             return static::A_COMMAND;
         } else if ($this->matchesDest($this->command)) {
             return static::C_COMMAND;
         }
+    }
+
+    private function matchesSymbol($command, &$matches = null)
+    {
+        return preg_match('/^@(\d)/', $command, $matches);
     }
 
     private function matchesDest($command, &$matches = null)
@@ -66,12 +71,24 @@ class Parser
 
     private function matchesComp($command, &$matches = null)
     {
-        return preg_match('/^(?:A|M|D)+(?:D|M)*\s{0,1}D*=\s{0,1}(D\+1|A\+1|D-1|A-1|D\+A|D-A|A-D|D&A|D\|A|M\+1|M-1|D\+M|D-M|M-D|D&M|D\|M|0|1|-1|D|A|!D|!A|-D|-A|M|!M|-M)/', $command, $matches);
+        return preg_match('/^(?:A|M|D)+(?:D|M)*\s{0,1}D*=*\s{0,1}(D\+1|A\+1|D-1|A-1|D\+A|D-A|A-D|D&A|D\|A|M\+1|M-1|D\+M|D-M|M-D|D&M|D\|M|0|1|-1|D|A|!D|!A|-D|-A|M|!M|-M)/', $command, $matches);
     }
 
     private function matchesJump($command, &$matches = null)
     {
-        return preg_match('/^(?:A|M|D)+(?:D|M)*\s{0,1}D*=\s{0,1}(?:D\+1|A\+1|D-1|A-1|D\+A|D-A|A-D|D&A|D\|A|M\+1|M-1|D\+M|D-M|M-D|D&M|D\|M|0|1|-1|D|A|!D|!A|-D|-A|M|!M|-M)\s{0,1};\s{0,1}(JGT|JEQ|JGE|JLT|JNE|JLE|JMP)/', $command, $matches);
+        return preg_match('/^(?:A|M|D)+(?:D|M)*\s{0,1}D*=*\s{0,1}(?:D\+1|A\+1|D-1|A-1|D\+A|D-A|A-D|D&A|D\|A|M\+1|M-1|D\+M|D-M|M-D|D&M|D\|M|0|1|-1|D|A|!D|!A|-D|-A|M|!M|-M)\s{0,1};\s{0,1}(JGT|JEQ|JGE|JLT|JNE|JLE|JMP)/', $command, $matches);
+    }
+
+    public function symbol()
+    {
+        if (!in_array($this->commandType(), [static::A_COMMAND, static::L_COMMAND])) {
+            return null;
+        }
+
+        $this->matchesSymbol($this->command, $matches);
+
+
+        return count($matches) > 0 ? $matches[1] : null;
     }
 
     public function dest()

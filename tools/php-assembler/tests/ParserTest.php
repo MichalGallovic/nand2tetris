@@ -121,6 +121,17 @@ class ParserTest extends TestCase
 
 
     /**
+    * @test
+    */
+    public function can_get_symbol_mnemonic()
+    {
+        $parser = new Parser(__DIR__ . '/fixtures/add/Add.asm');
+
+        $parser->setCommand('@5');
+        $this->assertEquals('5', $parser->symbol());
+    }
+
+    /**
      * @test
      */
     public function can_get_dest_mnemonic()
@@ -208,6 +219,9 @@ class ParserTest extends TestCase
         $this->assertEquals('D&M', $parser->comp());
         $parser->setCommand('D=D|M');
         $this->assertEquals('D|M', $parser->comp());
+
+        $parser->setCommand('D;JGT');
+        $this->assertEquals();
     }
 
     /**
