@@ -2,7 +2,6 @@
 
 namespace Nand2Tetris;
 
-use function Couchbase\defaultDecoder;
 
 class Parser
 {
@@ -25,7 +24,7 @@ class Parser
 
     public function setCommand($command)
     {
-        $this->command = $command;
+        $this->command = $this->cleanWhiteSpace($command);
     }
 
     /**
@@ -36,6 +35,11 @@ class Parser
         return !$this->file->eof();
     }
 
+    public function restart()
+    {
+        $this->file->rewind();
+    }
+
     /**
      * @return string
      */
@@ -43,27 +47,34 @@ class Parser
     {
         $command = $this->file->fgets();
 
-        while(preg_match("/^(\/\/|\s+)/", $command)) {
+        while(preg_match("/^(\/\/|\s+$)/", $command)) {
             $command = $this->file->fgets();
         }
 
-        $this->command = str_replace("\r\n", '', $command);
+        $this->command = $this->cleanWhiteSpace($command);
 
         return $this->command;
     }
 
     public function commandType()
     {
-        if ($this->matchesSymbol($this->command)) {
+        if ($this->matchesASymbol($this->command)) {
             return static::A_COMMAND;
+        } else if ($this->matchesLSymbol($this->command)) {
+            return static::L_COMMAND;
         } else if ($this->matchesDest($this->command) || $this->matchesComp($this->command) || $this->matchesJump($this->command)) {
             return static::C_COMMAND;
         }
     }
 
-    private function matchesSymbol($command, &$matches = null)
+    private function matchesASymbol($command, &$matches = null)
     {
-        return preg_match('/^@(\d+)/', $command, $matches);
+        return preg_match('/^@(.*)/', $command, $matches);
+    }
+
+    private function matchesLSymbol($command, &$matches = null)
+    {
+        return preg_match('/^\(([^\(\)]+)\)/', $command, $matches);
     }
 
     private function matchesDest($command, &$matches = null)
@@ -99,8 +110,13 @@ class Parser
             return null;
         }
 
-        $this->matchesSymbol($this->command, $matches);
+        $matches = [];
 
+        if ($this->commandType() === static::A_COMMAND) {
+            $this->matchesASymbol($this->command, $matches);
+        } else if ($this->commandType() === static::L_COMMAND) {
+            $this->matchesLSymbol($this->command, $matches);
+        }
 
         return count($matches) > 0 ? $matches[1] : null;
     }
@@ -136,5 +152,16 @@ class Parser
         $this->matchesJump($this->command, $matches);
 
         return count($matches) > 0 ? $matches[1] : null;
+    }
+
+    /**
+     * @param $command
+     *
+     * @return string
+     */
+    public function cleanWhiteSpace($command)
+    {
+        $command = str_replace(' ', '', $command);
+        return str_replace("\r\n", '', $command);
     }
 }

@@ -93,8 +93,11 @@ class ParserTest extends TestCase
     {
         $parser = new Parser(__DIR__ . '/fixtures/add/Add.asm');
 
-        $parser->advance();
-
+        $parser->setCommand('@5');
+        $this->assertEquals(Parser::A_COMMAND, $parser->commandType());
+        $parser->setCommand('@i');
+        $this->assertEquals(Parser::A_COMMAND, $parser->commandType());
+        $parser->setCommand('@STOP');
         $this->assertEquals(Parser::A_COMMAND, $parser->commandType());
     }
 
@@ -111,13 +114,17 @@ class ParserTest extends TestCase
         $this->assertEquals(Parser::C_COMMAND, $parser->commandType());
     }
 
-//    /**
-//    * @test
-//    */
-//    public function can_detect_l_command()
-//    {
-//
-//    }
+    /**
+    * @test
+    */
+    public function can_detect_l_command()
+    {
+        $parser = new Parser(__DIR__ . '/fixtures/add/Add.asm');
+
+        $parser->setCommand('(LOOP)');
+
+        $this->assertEquals(Parser::L_COMMAND, $parser->commandType());
+    }
 
 
     /**
@@ -252,5 +259,25 @@ class ParserTest extends TestCase
 
         $parser->setCommand('D;JGT');
         $this->assertEquals('JGT', $parser->jump());
+        $parser->setCommand('     D ; JGT');
+        $this->assertEquals('JGT', $parser->jump());
+    }
+
+    /**
+    * @test
+    */
+    public function can_get_symbol()
+    {
+        $parser = new Parser(__DIR__ . '/fixtures/add/Add.asm');
+
+        $parser->setCommand('(LOOP)');
+        $this->assertEquals('LOOP', $parser->symbol());
+        $parser->setCommand('@i');
+        $this->assertEquals('i', $parser->symbol());
+        $parser->setCommand('@5');
+        $this->assertEquals('5', $parser->symbol());
+
+        $parser->setCommand('(sys.init)');
+        $this->assertEquals('sys.init', $parser->symbol());
     }
 }
