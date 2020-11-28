@@ -31,6 +31,7 @@ class CodeTest extends TestCase
         $code = new Code();
 
         // a=0
+        $this->assertEquals('0000000', $code->comp(null));
         $this->assertEquals('0101010', $code->comp('0'));
         $this->assertEquals('0111111', $code->comp('1'));
         $this->assertEquals('0111010', $code->comp('-1'));

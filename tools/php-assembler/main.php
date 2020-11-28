@@ -5,14 +5,14 @@ require __DIR__ . '/vendor/autoload.php';
 use Nand2Tetris\Code;
 use Nand2Tetris\Parser;
 
-$parser = new Parser(__DIR__ . '/tests/fixtures/max/MaxL.asm');
+$parser = new Parser(__DIR__ . '/tests/fixtures/rect/RectL.asm');
 $code = new Code();
 
 $binary = "";
 
 while($parser->hasMoreCommands()) {
     $command = $parser->advance();
-    var_dump($command);
+//    var_dump($command);
     if ($parser->commandType() === Parser::A_COMMAND) {
         $symbol = $parser->symbol();
         $binary .= "0" . sprintf("%015d", decbin($symbol)) . PHP_EOL;
@@ -22,7 +22,7 @@ while($parser->hasMoreCommands()) {
         $jump = $code->jump($parser->jump());
         $binary .= "111" . $comp . $dest . $jump . PHP_EOL;
     }
-    var_dump($binary);
+//    var_dump($binary);
 }
 
 echo $binary;

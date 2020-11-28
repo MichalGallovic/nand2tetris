@@ -2,6 +2,8 @@
 
 namespace Nand2Tetris;
 
+use function Couchbase\defaultDecoder;
+
 class Parser
 {
     private $file;
@@ -54,29 +56,41 @@ class Parser
     {
         if ($this->matchesSymbol($this->command)) {
             return static::A_COMMAND;
-        } else if ($this->matchesDest($this->command)) {
+        } else if ($this->matchesDest($this->command) || $this->matchesComp($this->command) || $this->matchesJump($this->command)) {
             return static::C_COMMAND;
         }
     }
 
     private function matchesSymbol($command, &$matches = null)
     {
-        return preg_match('/^@(\d)/', $command, $matches);
+        return preg_match('/^@(\d+)/', $command, $matches);
     }
 
     private function matchesDest($command, &$matches = null)
     {
-        return preg_match('/^(A|M|D)+(D|M)*D*/', $command, $matches);
+        return preg_match('/^((A|M|D)+(D|M)*D*)\s{0,1}(?:=){1}/', $command, $matches);
     }
 
     private function matchesComp($command, &$matches = null)
     {
-        return preg_match('/^(?:A|M|D)+(?:D|M)*\s{0,1}D*=*\s{0,1}(D\+1|A\+1|D-1|A-1|D\+A|D-A|A-D|D&A|D\|A|M\+1|M-1|D\+M|D-M|M-D|D&M|D\|M|0|1|-1|D|A|!D|!A|-D|-A|M|!M|-M)/', $command, $matches);
+        if (preg_match('/^(?:A|M|D)+(?:D|M)*D*\s{0,1}=\s{0,1}(D\+1|A\+1|D-1|A-1|D\+A|D-A|A-D|D&A|D\|A|M\+1|M-1|D\+M|D-M|M-D|D&M|D\|M|0|1|-1|D|A|!D|!A|-D|-A|M|!M|-M)/', $command, $matches)) {
+            return true;
+        } else if (preg_match('/^(D\+1|A\+1|D-1|A-1|D\+A|D-A|A-D|D&A|D\|A|M\+1|M-1|D\+M|D-M|M-D|D&M|D\|M|0|1|-1|D|A|!D|!A|-D|-A|M|!M|-M)\s{0,1};\s{0,1}(?:JGT|JEQ|JGE|JLT|JNE|JLE|JMP)/', $command, $matches)) {
+            return true;
+        }
+
+        return false;
     }
 
     private function matchesJump($command, &$matches = null)
     {
-        return preg_match('/^(?:A|M|D)+(?:D|M)*\s{0,1}D*=*\s{0,1}(?:D\+1|A\+1|D-1|A-1|D\+A|D-A|A-D|D&A|D\|A|M\+1|M-1|D\+M|D-M|M-D|D&M|D\|M|0|1|-1|D|A|!D|!A|-D|-A|M|!M|-M)\s{0,1};\s{0,1}(JGT|JEQ|JGE|JLT|JNE|JLE|JMP)/', $command, $matches);
+        if (preg_match('/^(?:A|M|D)+(?:D|M)*D*\s{0,1}=\s{0,1}(?:D\+1|A\+1|D-1|A-1|D\+A|D-A|A-D|D&A|D\|A|M\+1|M-1|D\+M|D-M|M-D|D&M|D\|M|0|1|-1|D|A|!D|!A|-D|-A|M|!M|-M)\s{0,1};\s{0,1}(JGT|JEQ|JGE|JLT|JNE|JLE|JMP)/', $command, $matches)) {
+            return true;
+        } else if (preg_match('/^(?:D\+1|A\+1|D-1|A-1|D\+A|D-A|A-D|D&A|D\|A|M\+1|M-1|D\+M|D-M|M-D|D&M|D\|M|0|1|-1|D|A|!D|!A|-D|-A|M|!M|-M)\s{0,1};\s{0,1}(JGT|JEQ|JGE|JLT|JNE|JLE|JMP)/', $command, $matches)) {
+            return true;
+        }
+
+        return false;
     }
 
     public function symbol()
@@ -99,7 +113,7 @@ class Parser
 
         $this->matchesDest($this->command, $matches);
 
-        return $matches[0];
+        return count($matches) > 0 ? $matches[1] : null;
     }
 
     public function comp()

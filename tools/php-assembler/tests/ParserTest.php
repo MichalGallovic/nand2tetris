@@ -129,6 +129,8 @@ class ParserTest extends TestCase
 
         $parser->setCommand('@5');
         $this->assertEquals('5', $parser->symbol());
+        $parser->setCommand('@10');
+        $this->assertEquals('10', $parser->symbol());
     }
 
     /**
@@ -221,7 +223,7 @@ class ParserTest extends TestCase
         $this->assertEquals('D|M', $parser->comp());
 
         $parser->setCommand('D;JGT');
-        $this->assertEquals();
+        $this->assertEquals('D', $parser->comp());
     }
 
     /**
@@ -247,5 +249,8 @@ class ParserTest extends TestCase
         $this->assertEquals('JLE', $parser->jump());
         $parser->setCommand('D=0;JMP');
         $this->assertEquals('JMP', $parser->jump());
+
+        $parser->setCommand('D;JGT');
+        $this->assertEquals('JGT', $parser->jump());
     }
 }

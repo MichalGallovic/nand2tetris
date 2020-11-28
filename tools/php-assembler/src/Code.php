@@ -25,6 +25,10 @@ class Code
 
     public function comp($comp)
     {
+        if (is_null($comp)) {
+            return '0000000';
+        }
+
         $aMap = [
             '0' => '101010',
             '1' => '111111',
