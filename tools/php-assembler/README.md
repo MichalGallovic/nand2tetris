@@ -1,8 +1,8 @@
-### Hack assember
+## Hack assember
 
 Based on course [Nand2Tetris](https://nand2tetris.org), this program can assemble Hack assembly language into binary 16bit binary code runnable on Hack computer described in the course.
 
-Supports:
+#### Supports:
  - a instructions
  - c instructions
  - labels
